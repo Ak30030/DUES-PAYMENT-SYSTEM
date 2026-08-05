@@ -1,0 +1,476 @@
+/* style.css — shared stylesheet for the whole Student Management System.
+   Link this in every page's <head>:
+       <link rel="stylesheet" href="style.css">
+
+   Color scheme lives in CSS variables at the top, so if the sky-blue
+   shade ever needs adjusting, it's a one-line change here — not a
+   hunt through every page.
+*/
+
+:root {
+    color-scheme: light;
+    --primary: #1b2a6b;        /* navy blue — from the CS department logo */
+    --primary-dark: #121d4d;   /* hover / active states */
+    --primary-light: #e5e8f5;  /* light backgrounds, badges */
+    --accent: #d81f26;         /* red — from the logo's ribbon/tower */
+    --accent-dark: #a8171c;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --bg: #f4f6f8;
+    --white: #ffffff;
+    --border: #cbd5e1;
+    --danger: #d81f26;
+    --danger-dark: #a8171c;
+    --success: #16a34a;
+    --radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* ── Centered auth pages (login / register) ───────────────── */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-box {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.15);
+}
+
+.auth-box h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+}
+
+/* ── Forms ──────────────────────────────────────────────────── */
+input, select, textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+button, .btn {
+    display: inline-block;
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    background: var(--primary-dark);
+}
+
+.btn-danger {
+    background: var(--danger);
+}
+
+.btn-danger:hover {
+    background: var(--danger-dark);
+}
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+.error {
+    color: var(--danger);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.success {
+    color: var(--success);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.note {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.note a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.note a:hover {
+    text-decoration: underline;
+}
+
+/* ── App shell (dashboard and other protected pages) ───────── */
+.page-wrapper {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.topbar .btn-danger {
+    width: auto;
+    padding: 0.5rem 1rem;
+}
+
+.content {
+    margin-top: 2rem;
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.content:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.15);
+}
+
+/* ── Tables (students, dues, payments lists) ───────────────── */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background: var(--primary-light);
+    color: var(--text-dark);
+}
+
+tr:hover {
+    background: #f8fafc;
+}
+
+/* ── Badges (e.g. role labels, payment status) ─────────────── */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+/* ── Site navbar (used on the homepage and other public pages) */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--primary);
+    padding: 0.8rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--white);
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+
+.navbar .brand img {
+    height: 42px;
+    width: 42px;
+    border-radius: 50%;
+    background: var(--white);
+    object-fit: cover;
+}
+
+.navbar .nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    margin-left: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.navbar .nav-links a:hover {
+    color: var(--primary-light);
+}
+
+.navbar .nav-links .btn {
+    width: auto;
+    padding: 0.4rem 1rem;
+    margin-left: 1.5rem;
+}
+
+/* ── Hero section (homepage) — navy gradient with centered logo ── */
+.hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    text-align: center;
+    padding: 3.5rem 2rem;
+}
+
+.hero img.logo {
+    height: 130px;
+    width: 130px;
+    border-radius: 50%;
+    background: var(--white);
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    margin-bottom: 1.2rem;
+}
+
+.hero h1 {
+    margin: 0.5rem 0 0.3rem;
+    font-size: 1.9rem;
+}
+
+.hero p {
+    color: var(--primary-light);
+    max-width: 480px;
+    margin: 0 auto 1.5rem;
+}
+
+.hero .btn {
+    width: auto;
+    padding: 0.7rem 1.8rem;
+    margin: 0 0.4rem;
+}
+
+.hero .btn-outline {
+    background: transparent;
+    border: 2px solid var(--white);
+}
+
+.hero .btn-outline:hover {
+    background: var(--white);
+    color: var(--primary);
+}
+
+/* ── Stat cards (dashboard summary numbers) ────────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.3rem 1.2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid var(--primary);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.15);
+}
+
+.stat-card.accent {
+    border-left-color: var(--accent);
+}
+
+.stat-card .stat-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 0.4rem;
+}
+
+.stat-card .stat-value {
+    color: var(--primary);
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* ── Action cards (dashboard quick links) ──────────────────── */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+}
+
+.action-card {
+    display: block;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.15);
+}
+
+.action-card .action-icon {
+    height: 48px;
+    width: 48px;
+    line-height: 48px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    text-align: center;
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+}
+
+.action-card h3 {
+    margin: 0 0 0.3rem;
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
+.action-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.section-label {
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    margin: 1.8rem 0 0.8rem;
+}
+
+.section-label:first-child {
+    margin-top: 0;
+}
+   
+.card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.15);
+}
+
+/* ── Highlights strip (replaces the old plain feature cards) ──
+   A responsive, alternating-color band with icon bubbles and a
+   hover lift — reads as one connected strip on wide screens and
+   stacks cleanly on mobile. ─────────────────────────────────── */
+.highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    max-width: 1000px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+    gap: 1.2rem;
+}
+
+.highlight-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.6rem 1.2rem;
+    text-align: center;
+    box-shadow: 0 3px 14px rgba(27, 42, 107, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.highlight-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(27, 42, 107, 0.18);
+}
+
+.highlight-icon {
+    height: 56px;
+    width: 56px;
+    line-height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 0.9rem;
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+.highlight-card:nth-child(odd) .highlight-icon {
+    background: var(--primary);
+}
+
+.highlight-card:nth-child(even) .highlight-icon {
+    background: var(--accent);
+}
+
+.highlight-card h3 {
+    margin: 0 0 0.4rem;
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
+.highlight-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ── Accent ribbon (echoes the logo's red ribbon) ──────────── */
+.ribbon {
+    background: var(--accent);
+    color: var(--white);
+    text-align: center;
+    padding: 0.6rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
