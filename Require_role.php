@@ -9,10 +9,6 @@ function require_role(array $allowed_roles) {
     }
 }
 
-/**
- * Convenience helper for use inside a page's HTML/logic, e.g.:
- *   <?php if (can(['admin'])): ?> <button>Edit Amount</button> <?php endif; ?>
- */
 function can(array $allowed_roles): bool {
     return in_array($_SESSION['role'] ?? null, $allowed_roles, true);
 }

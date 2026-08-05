@@ -104,7 +104,7 @@ $users = $stmt->fetchAll();
                                     <input type="hidden" name="action" value="change_role">
                                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                                     <select name="role" style="margin:0; width:auto;">
-                                        <option value="user"      <?= $u['role'] === 'user'      ? 'selected' : '' ?>>User</option>
+                                        <option value="user"      <?= $u['role'] === 'user'      ? 'selected' : '' ?>>Student</option>
                                         <option value="executive" <?= $u['role'] === 'executive' ? 'selected' : '' ?>>Executive</option>
                                         <option value="admin"     <?= $u['role'] === 'admin'     ? 'selected' : '' ?>>Admin</option>
                                     </select>
