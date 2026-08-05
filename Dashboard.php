@@ -39,12 +39,14 @@ try {
         <div class="nav-links">
             <?php if ($is_admin): ?>
                 <a href="Manage_dues.php">Manage Dues</a>
-                <a href="manage_users.php">Manage Users</a>
+                <a href="Manage_users.php">Manage Users</a>
+            <?php else: ?>
+                <a href="My_dues.php">My Dues</a>
             <?php endif; ?>
             <span style="color:var(--white);">Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>
                 <span class="badge"><?= htmlspecialchars($_SESSION['role'] ?? 'user') ?></span>
             </span>
-            <a href="logout.php" class="btn btn-danger">Log Out</a>
+            <a href="Logout.php" class="btn btn-danger">Log Out</a>
         </div>
     </nav>
 
@@ -79,7 +81,7 @@ try {
                     <h3>Manage Dues</h3>
                     <p>Create, edit amounts, and activate/deactivate dues.</p>
                 </a>
-                <a href="manage_users.php" class="action-card">
+                <a href="Manage_users.php" class="action-card">
                     <div class="action-icon">&#128101;</div>
                     <h3>Manage Users</h3>
                     <p>Search users and change their role — user, executive, or admin.</p>
@@ -104,9 +106,12 @@ try {
 
         <?php else: ?>
 
-            <div class="card">
-                <h2>Welcome, <?= htmlspecialchars($_SESSION['username']) ?></h2>
-                <p>Your dues and payment history will show up here once that page is ready.</p>
+            <div class="action-grid">
+                <a href="My_dues.php" class="action-card">
+                    <div class="action-icon">&#128179;</div>
+                    <h3>My Dues</h3>
+                    <p>See active dues and pay online.</p>
+                </a>
             </div>
 
         <?php endif; ?>
