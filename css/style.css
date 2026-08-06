@@ -72,6 +72,8 @@ input, select, textarea {
     border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 1rem;
+    background-color: var(--white) !important;
+    color: var(--text-dark) !important;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -394,7 +396,7 @@ tr:hover {
 .section-label:first-child {
     margin-top: 0;
 }
-   
+  
 .card {
     background: var(--white);
     border-radius: var(--radius);

@@ -35,8 +35,8 @@ $dues = $stmt->fetchAll();
             CS Department - KsTU
         </a>
         <div class="nav-links">
-            <a href="Dashboard.php">Dashboard</a>
-            <a href="Logout.php" class="btn btn-danger">Log Out</a>
+            <a href="dashboard.php">Dashboard</a>
+            <a href="logout.php" class="btn btn-danger">Log Out</a>
         </div>
     </nav>
 
@@ -45,6 +45,21 @@ $dues = $stmt->fetchAll();
         <div class="card">
             <h2>My Dues</h2>
             <p style="color:var(--text-muted);">Dues currently active for the department. Pay online and get your receipt instantly.</p>
+
+            <?php if (isset($_GET['paid'])): ?>
+                <p class="success">Payment successful! Your due is now marked as paid.</p>
+            <?php elseif (isset($_GET['error'])): ?>
+                <?php
+                $messages = [
+                    'already_paid'     => 'You have already paid this due.',
+                    'payment_failed'   => 'Payment was not completed. Please try again.',
+                    'due_not_found'    => 'That due could not be found or is no longer active.',
+                    'missing_reference'=> 'Payment reference missing — please try again.',
+                ];
+                $msg = $messages[$_GET['error']] ?? 'Something went wrong. Please try again.';
+                ?>
+                <p class="error"><?= htmlspecialchars($msg) ?></p>
+            <?php endif; ?>
 
             <table>
                 <thead>
