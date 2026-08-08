@@ -396,7 +396,6 @@ tr:hover {
 .section-label:first-child {
     margin-top: 0;
 }
-  
 .card {
     background: var(--white);
     border-radius: var(--radius);
@@ -475,4 +474,107 @@ tr:hover {
     padding: 0.6rem;
     font-weight: bold;
     letter-spacing: 0.5px;
+}
+
+.receipt-box {
+    position: relative;
+    max-width: 500px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    overflow: hidden;
+}
+
+.receipt-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 380px;
+    width: 380px;
+    object-fit: contain;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.receipt-box > *:not(.receipt-watermark) {
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 2px dashed var(--border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.receipt-header img {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+}
+
+.receipt-header h2 {
+    margin: 0.3rem 0;
+    color: var(--primary);
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+}
+
+.receipt-row span:first-child {
+    color: var(--text-muted);
+}
+
+.receipt-amount {
+    text-align: center;
+    margin: 1.2rem 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.receipt-status {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.receipt-signature {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+
+.receipt-signature img {
+    height: 42px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto -6px;
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-signature p {
+    margin: 0 auto;
+    max-width: 220px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 0.4rem;
+}
+
+@media print {
+    .navbar, .no-print { display: none !important; }
+    .receipt-box { box-shadow: none; margin: 0; }
 }

@@ -1,6 +1,4 @@
 <?php
-// This MUST be the first thing in the file — before any HTML/whitespace —
-// because it may issue a header() redirect.
 require_once 'Auth_check.php';
 require_once 'Require_role.php';
 require_once 'db/db_connect.php';
@@ -8,9 +6,7 @@ require_once 'db/db_connect.php';
 $is_admin = can(['admin']);
 $is_exec  = can(['executive']);
 
-// Pull a few summary numbers for admins/executives. Wrapped in try/catch
-// so a missing table (e.g. before you've run the schema SQL) doesn't
-// break the whole dashboard — it just shows 0 instead.
+
 $total_users = $active_dues = $total_dues = $total_payments = 0;
 try {
     $total_users    = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
@@ -18,7 +14,7 @@ try {
     $active_dues    = (int) $pdo->query('SELECT COUNT(*) FROM dues WHERE is_active = 1')->fetchColumn();
     $total_payments = (int) $pdo->query('SELECT COUNT(*) FROM payments')->fetchColumn();
 } catch (PDOException $e) {
-    // Tables not created yet — stats just show 0, no need to break the page.
+
 }
 ?>
 <!DOCTYPE html>
@@ -40,11 +36,14 @@ try {
             <?php if ($is_admin): ?>
                 <a href="Manage_dues.php">Manage Dues</a>
                 <a href="Manage_users.php">Manage Users</a>
+                <a href="Payments.php">Payments</a>
+            <?php elseif ($is_exec): ?>
+                <a href="Payments.php">Payments</a>
             <?php else: ?>
                 <a href="My_dues.php">My Dues</a>
             <?php endif; ?>
             <span style="color:var(--white);">Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>
-                <span class="badge"><?= htmlspecialchars($_SESSION['role'] ?? 'user') ?></span>
+                <span class="badge"><?= htmlspecialchars($_SESSION['role'] ?? 'student') ?></span>
             </span>
             <a href="Logout.php" class="btn btn-danger">Log Out</a>
         </div>
@@ -76,7 +75,7 @@ try {
 
             <h3 class="section-label">Quick Actions</h3>
             <div class="action-grid">
-                <a href="manage_dues.php" class="action-card">
+                <a href="Manage_dues.php" class="action-card">
                     <div class="action-icon">&#128179;</div>
                     <h3>Manage Dues</h3>
                     <p>Create, edit amounts, and activate/deactivate dues.</p>
@@ -84,11 +83,11 @@ try {
                 <a href="Manage_users.php" class="action-card">
                     <div class="action-icon">&#128101;</div>
                     <h3>Manage Users</h3>
-                    <p>Search users and change their role — user, executive, or admin.</p>
+                    <p>Search users and change their role — student, executive, or admin.</p>
                 </a>
-                <a href="#" class="action-card" style="opacity:0.6; cursor:not-allowed;" onclick="return false;">
+                <a href="Payments.php" class="action-card">
                     <div class="action-icon">&#128203;</div>
-                    <h3>Payments (coming soon)</h3>
+                    <h3>Payments</h3>
                     <p>View and filter all student payment records.</p>
                 </a>
             </div>
@@ -97,10 +96,10 @@ try {
 
             <h3 class="section-label">Quick Actions</h3>
             <div class="action-grid">
-                <a href="#" class="action-card" style="opacity:0.6; cursor:not-allowed;" onclick="return false;">
+                <a href="Payments.php" class="action-card">
                     <div class="action-icon">&#128179;</div>
-                    <h3>Dues &amp; Payments (coming soon)</h3>
-                    <p>View dues and manage payments. Amounts are admin-only.</p>
+                    <h3>Payments</h3>
+                    <p>View and filter all student payment records. Amounts are admin-only.</p>
                 </a>
             </div>
 

@@ -3,50 +3,49 @@ require_once 'Auth_check.php';
 require_once 'Require_role.php';
 require_once 'db/db_connect.php';
 
-require_role(['admin']); // executives are blocked from this whole page
+require_role(['admin']);
 
 $error = '';
 $success = '';
 
-// ── Handle create / update ──────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save') {
     $id            = $_POST['id'] ?? '';
     $title         = trim($_POST['title'] ?? '');
     $description   = trim($_POST['description'] ?? '');
     $amount        = $_POST['amount'] ?? '';
-    $program       = trim($_POST['program'] ?? '');
+    $level         = $_POST['level'] ?? '';
     $academic_year = trim($_POST['academic_year'] ?? '');
     $due_date      = $_POST['due_date'] ?? '';
 
+    $valid_levels = ['100', '200', '300', '400'];
+
     if ($title === '' || $amount === '' || !is_numeric($amount) || $amount <= 0) {
         $error = 'Title and a valid amount are required.';
+    } elseif (!in_array($level, $valid_levels, true)) {
+        $error = 'Please select a valid level.';
     } else {
-        $program       = $program !== '' ? $program : null;
         $academic_year = $academic_year !== '' ? $academic_year : null;
         $due_date      = $due_date !== '' ? $due_date : null;
 
         if ($id === '') {
-            // Create new due
             $stmt = $pdo->prepare(
-                'INSERT INTO dues (title, description, amount, program, academic_year, due_date)
-                 VALUES (:title, :description, :amount, :program, :academic_year, :due_date)'
+                'INSERT INTO dues (title, description, amount, level, academic_year, due_date)
+                 VALUES (:title, :description, :amount, :level, :academic_year, :due_date)'
             );
             $stmt->execute([
                 'title' => $title, 'description' => $description, 'amount' => $amount,
-                'program' => $program, 'academic_year' => $academic_year, 'due_date' => $due_date,
+                'level' => $level, 'academic_year' => $academic_year, 'due_date' => $due_date,
             ]);
             $success = 'Due created.';
         } else {
-            // Update existing due — only reachable here because require_role already
-            // confirmed this user is admin, so amount edits are safe to allow.
             $stmt = $pdo->prepare(
                 'UPDATE dues SET title = :title, description = :description, amount = :amount,
-                 program = :program, academic_year = :academic_year, due_date = :due_date
+                 level = :level, academic_year = :academic_year, due_date = :due_date
                  WHERE id = :id'
             );
             $stmt->execute([
                 'title' => $title, 'description' => $description, 'amount' => $amount,
-                'program' => $program, 'academic_year' => $academic_year, 'due_date' => $due_date,
+                'level' => $level, 'academic_year' => $academic_year, 'due_date' => $due_date,
                 'id' => $id,
             ]);
             $success = 'Due updated.';
@@ -54,13 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
     }
 }
 
-// ── Handle activate / deactivate toggle ─────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'toggle') {
     $stmt = $pdo->prepare('UPDATE dues SET is_active = NOT is_active WHERE id = :id');
     $stmt->execute(['id' => $_POST['id']]);
 }
 
-// ── If editing, load that due's current values ──────────────
 $editing = null;
 if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare('SELECT * FROM dues WHERE id = :id');
@@ -68,8 +65,7 @@ if (isset($_GET['edit'])) {
     $editing = $stmt->fetch();
 }
 
-// ── List all dues ────────────────────────────────────────────
-$dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
+$dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,7 +83,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
             CS Department - KsTU
         </a>
         <div class="nav-links">
-            <a href="dashboard.php">Dashboard</a>
+            <a href="Dashboard.php">Dashboard</a>
             <a href="logout.php" class="btn btn-danger">Log Out</a>
         </div>
     </nav>
@@ -96,11 +92,14 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
 
         <div class="card" style="margin-bottom:1.5rem;">
             <h2><?= $editing ? 'Edit Due' : 'Create a New Due' ?></h2>
+            <p style="color:var(--text-muted); font-size:0.9rem;">
+                Each due is tied to a level. Degree students see Level 100-400, HND sees 100-300, Diploma sees 100-200 — based on what they picked at registration.
+            </p>
 
             <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
             <?php if ($success): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
-            <form method="POST" action="manage_dues.php">
+            <form method="POST" action="Manage_dues.php">
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" value="<?= htmlspecialchars($editing['id'] ?? '') ?>">
 
@@ -112,8 +111,13 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
                 <input type="number" step="0.01" min="0.01" name="amount" placeholder="Amount (GHS)"
                        value="<?= htmlspecialchars($editing['amount'] ?? '') ?>" required>
 
-                <input type="text" name="program" placeholder="Program (optional, leave blank for all)"
-                       value="<?= htmlspecialchars($editing['program'] ?? '') ?>">
+                <select name="level" required>
+                    <option value="" disabled <?= empty($editing['level']) ? 'selected' : '' ?>>Select Level</option>
+                    <option value="100" <?= ($editing['level'] ?? '') === '100' ? 'selected' : '' ?>>Level 100</option>
+                    <option value="200" <?= ($editing['level'] ?? '') === '200' ? 'selected' : '' ?>>Level 200</option>
+                    <option value="300" <?= ($editing['level'] ?? '') === '300' ? 'selected' : '' ?>>Level 300</option>
+                    <option value="400" <?= ($editing['level'] ?? '') === '400' ? 'selected' : '' ?>>Level 400</option>
+                </select>
 
                 <input type="text" name="academic_year" placeholder="Academic Year (e.g. 2026/2027)"
                        value="<?= htmlspecialchars($editing['academic_year'] ?? '') ?>">
@@ -124,7 +128,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
                 <button type="submit"><?= $editing ? 'Save Changes' : 'Create Due' ?></button>
             </form>
             <?php if ($editing): ?>
-                <p class="note"><a href="manage_dues.php">Cancel editing / create a new due instead</a></p>
+                <p class="note"><a href="Manage_dues.php">Cancel editing / create a new due instead</a></p>
             <?php endif; ?>
         </div>
 
@@ -135,7 +139,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
                     <tr>
                         <th>Title</th>
                         <th>Amount (GHS)</th>
-                        <th>Program</th>
+                        <th>Level</th>
                         <th>Due Date</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -149,7 +153,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
                         <tr>
                             <td><?= htmlspecialchars($due['title']) ?></td>
                             <td><?= number_format($due['amount'], 2) ?></td>
-                            <td><?= htmlspecialchars($due['program'] ?? 'All') ?></td>
+                            <td><span class="badge">Level <?= htmlspecialchars($due['level']) ?></span></td>
                             <td><?= htmlspecialchars($due['due_date'] ?? '—') ?></td>
                             <td>
                                 <span class="badge" style="<?= $due['is_active'] ? '' : 'background:#fee2e2;color:#991b1b;' ?>">
@@ -157,9 +161,9 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY created_at DESC')->fetchAll();
                                 </span>
                             </td>
                             <td>
-                                <a href="manage_dues.php?edit=<?= $due['id'] ?>">Edit</a>
+                                <a href="Manage_dues.php?edit=<?= $due['id'] ?>">Edit</a>
                                 &nbsp;|&nbsp;
-                                <form method="POST" action="manage_dues.php" style="display:inline;">
+                                <form method="POST" action="Manage_dues.php" style="display:inline;">
                                     <input type="hidden" name="action" value="toggle">
                                     <input type="hidden" name="id" value="<?= $due['id'] ?>">
                                     <button type="submit" style="width:auto; padding:0.1rem 0.5rem; background:none; color:var(--primary); text-decoration:underline; box-shadow:none;">

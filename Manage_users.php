@@ -3,21 +3,19 @@ require_once 'Auth_check.php';
 require_once 'Require_role.php';
 require_once 'db/db_connect.php';
 
-require_role(['admin']); // only admin can view or change roles
+require_role(['admin']);
 
 $error = '';
 $success = '';
 
-// ── Handle role change ──────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'change_role') {
     $target_id  = $_POST['user_id'] ?? '';
     $new_role   = $_POST['role'] ?? '';
-    $valid_roles = ['admin', 'executive', 'user'];
+    $valid_roles = ['admin', 'executive', 'student'];
 
     if (!in_array($new_role, $valid_roles, true)) {
         $error = 'Invalid role selected.';
     } elseif ((int) $target_id === (int) $_SESSION['user_id'] && $new_role !== 'admin') {
-        // Stop an admin from accidentally demoting themselves and getting locked out.
         $error = "You can't remove your own admin role while logged in as yourself.";
     } else {
         $stmt = $pdo->prepare('UPDATE users SET role = :role WHERE id = :id');
@@ -26,16 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
     }
 }
 
-// ── List all users ──────────────────────────────────────────
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
     $stmt = $pdo->prepare(
-        'SELECT id, username, email, role, created_at FROM users
+        'SELECT id, username, email, role, certification, created_at FROM users
          WHERE username LIKE :s OR email LIKE :s ORDER BY created_at DESC'
     );
     $stmt->execute(['s' => '%' . $search . '%']);
 } else {
-    $stmt = $pdo->query('SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC');
+    $stmt = $pdo->query('SELECT id, username, email, role, certification, created_at FROM users ORDER BY created_at DESC');
 }
 $users = $stmt->fetchAll();
 ?>
@@ -57,7 +54,7 @@ $users = $stmt->fetchAll();
         <div class="nav-links">
             <a href="Dashboard.php">Dashboard</a>
             <a href="Manage_dues.php">Manage Dues</a>
-            <a href="logout.php" class="btn btn-danger">Log Out</a>
+            <a href="Logout.php" class="btn btn-danger">Log Out</a>
         </div>
     </nav>
 
@@ -80,6 +77,7 @@ $users = $stmt->fetchAll();
                     <tr>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Certification</th>
                         <th>Current Role</th>
                         <th>Joined</th>
                         <th>Change Role</th>
@@ -87,7 +85,7 @@ $users = $stmt->fetchAll();
                 </thead>
                 <tbody>
                 <?php if (empty($users)): ?>
-                    <tr><td colspan="5">No users found.</td></tr>
+                    <tr><td colspan="6">No users found.</td></tr>
                 <?php else: ?>
                     <?php foreach ($users as $u): ?>
                         <tr>
@@ -97,14 +95,15 @@ $users = $stmt->fetchAll();
                                 <?php endif; ?>
                             </td>
                             <td><?= htmlspecialchars($u['email']) ?></td>
+                            <td><?= htmlspecialchars(ucfirst($u['certification'] ?? '—')) ?></td>
                             <td><span class="badge"><?= htmlspecialchars($u['role']) ?></span></td>
                             <td><?= htmlspecialchars($u['created_at']) ?></td>
                             <td>
-                                <form method="POST" action="manage_users.php" style="display:flex; gap:0.4rem; margin:0;">
+                                <form method="POST" action="Manage_users.php" style="display:flex; gap:0.4rem; margin:0;">
                                     <input type="hidden" name="action" value="change_role">
                                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                                     <select name="role" style="margin:0; width:auto;">
-                                        <option value="user"      <?= $u['role'] === 'user'      ? 'selected' : '' ?>>Student</option>
+                                        <option value="student"   <?= $u['role'] === 'student'   ? 'selected' : '' ?>>Student</option>
                                         <option value="executive" <?= $u['role'] === 'executive' ? 'selected' : '' ?>>Executive</option>
                                         <option value="admin"     <?= $u['role'] === 'admin'     ? 'selected' : '' ?>>Admin</option>
                                     </select>
