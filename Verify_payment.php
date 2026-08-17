@@ -1,7 +1,8 @@
 <?php
 require_once 'Auth_check.php';
 require_once 'db/db_connect.php';
-require_once 'Paystack_config.php';
+require_once 'paystack_config.php';
+require_once 'Send_receipt_email.php';
 
 $reference = $_GET['reference'] ?? '';
 
@@ -46,12 +47,32 @@ if ($data && $data['status'] === 'success') {
         'id'      => $payment['id'],
     ]);
 
-    header('Location:my_dues.php?paid=1');
+    $info_stmt = $pdo->prepare(
+        'SELECT u.username, u.email, d.title, d.level
+         FROM users u, dues d
+         WHERE u.id = :sid AND d.id = :did'
+    );
+    $info_stmt->execute(['sid' => $payment['student_id'], 'did' => $payment['due_id']]);
+    $info = $info_stmt->fetch();
+
+    if ($info) {
+        send_receipt_email(
+            $info['email'],
+            $info['username'],
+            $info['title'],
+            $info['level'],
+            $payment['amount'],
+            $reference,
+            date('Y-m-d H:i:s')
+        );
+    }
+
+    header('Location: My_dues.php?paid=1');
     exit;
 } else {
     $update = $pdo->prepare('UPDATE payments SET status = "failed" WHERE id = :id');
     $update->execute(['id' => $payment['id']]);
 
-    header('Location: my_dues.php?error=payment_failed');
+    header('Location: My_dues.php?error=payment_failed');
     exit;
 }

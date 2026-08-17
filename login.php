@@ -2,7 +2,6 @@
 session_start();
 require_once 'db/db_connect.php';
 
-// If already logged in, don't show the login form again.
 if (!empty($_SESSION['user_id'])) {
     header('Location: dashboard.php');
     exit;
@@ -11,25 +10,21 @@ if (!empty($_SESSION['user_id'])) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identifier = trim($_POST['identifier'] ?? ''); // username or email
+    $identifier = trim($_POST['identifier'] ?? '');
     $password   = $_POST['password'] ?? '';
 
     if ($identifier === '' || $password === '') {
-        $error = 'Please enter both your username/email and password.';
+        $error = 'Please enter your login details and password.';
     } else {
-        // Look up by username OR email
         $stmt = $pdo->prepare(
-            'SELECT id, username, password, role FROM users WHERE username = :id1 OR email = :id2 LIMIT 1'
+            'SELECT id, username, password, role FROM users
+             WHERE index_number = :id1 OR username = :id2 LIMIT 1'
         );
         $stmt->execute(['id1' => $identifier, 'id2' => $identifier]);
         $user = $stmt->fetch();
 
-        // password_verify checks the plain text password against the bcrypt hash.
-        // Always give the same generic error whether the user or password was wrong —
-        // don't tell an attacker which one was incorrect.
         if ($user && password_verify($password, $user['password'])) {
 
-            // Regenerate the session ID on login to prevent session fixation attacks.
             session_regenerate_id(true);
 
             $_SESSION['user_id']  = $user['id'];
@@ -37,14 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role']     = $user['role'];
             $_SESSION['last_activity'] = time();
 
-            // Send them back to whatever page they were trying to reach, if any.
             $redirect = $_SESSION['redirect_after_login'] ?? 'dashboard.php';
             unset($_SESSION['redirect_after_login']);
 
             header('Location: ' . $redirect);
             exit;
         } else {
-            $error = 'Invalid username/email or password.';
+            $error = 'Invalid login details or password.';
         }
     }
 }
@@ -73,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="login.php">
-            <input type="text" name="identifier" placeholder="Username or Email" required autofocus>
+            <input type="text" name="identifier" placeholder="Index Number (students) or Name (admin/executive)" required autofocus>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Log In</button>
         </form>

@@ -109,6 +109,7 @@ $count_failed  = $pdo->query("SELECT COUNT(*) FROM payments WHERE status = 'fail
                 <?php endif; ?>
             </form>
 
+            <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
@@ -150,6 +151,7 @@ $count_failed  = $pdo->query("SELECT COUNT(*) FROM payments WHERE status = 'fail
                 <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
 
     </div>

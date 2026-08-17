@@ -41,6 +41,7 @@ try {
                 <a href="Payments.php">Payments</a>
             <?php else: ?>
                 <a href="My_dues.php">My Dues</a>
+                <a href="Payment_history.php">Payment History</a>
             <?php endif; ?>
             <span style="color:var(--white);">Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>
                 <span class="badge"><?= htmlspecialchars($_SESSION['role'] ?? 'student') ?></span>
@@ -110,6 +111,11 @@ try {
                     <div class="action-icon">&#128179;</div>
                     <h3>My Dues</h3>
                     <p>See active dues and pay online.</p>
+                </a>
+                <a href="Payment_history.php" class="action-card">
+                    <div class="action-icon">&#128203;</div>
+                    <h3>Payment History</h3>
+                    <p>View every payment you've made across all semesters.</p>
                 </a>
             </div>
 

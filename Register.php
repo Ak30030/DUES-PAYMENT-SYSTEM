@@ -12,6 +12,7 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username      = trim($_POST['username'] ?? '');
+    $index_number  = trim($_POST['index_number'] ?? '');
     $email         = trim($_POST['email'] ?? '');
     $password      = $_POST['password'] ?? '';
     $confirm       = $_POST['confirm_password'] ?? '';
@@ -19,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $valid_certifications = ['degree', 'hnd', 'diploma'];
 
-    if ($username === '' || $email === '' || $password === '') {
+    if ($username === '' || $index_number === '' || $email === '' || $password === '') {
         $error = 'All fields are required.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Please enter a valid email address.';
@@ -30,20 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!in_array($certification, $valid_certifications, true)) {
         $error = 'Please select your certification type.';
     } else {
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :u OR email = :e');
-        $stmt->execute(['u' => $username, 'e' => $email]);
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :u OR email = :e OR index_number = :n');
+        $stmt->execute(['u' => $username, 'e' => $email, 'n' => $index_number]);
 
         if ($stmt->fetch()) {
-            $error = 'That username or email is already registered.';
+            $error = 'That username, email, or index number is already registered.';
         } else {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
 
             $insert = $pdo->prepare(
-                'INSERT INTO users (username, email, password, certification) VALUES (:u, :e, :p, :c)'
+                'INSERT INTO users (username, index_number, email, password, certification) VALUES (:u, :n, :e, :p, :c)'
             );
-            $insert->execute(['u' => $username, 'e' => $email, 'p' => $hashed, 'c' => $certification]);
+            $insert->execute(['u' => $username, 'n' => $index_number, 'e' => $email, 'p' => $hashed, 'c' => $certification]);
 
-            $success = 'Account created! You can now log in.';
+            $success = 'Account created! You can now log in with your index number.';
         }
     }
 }
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" action="register.php">
             <input type="text" name="username" placeholder="Username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required>
+            <input type="text" name="index_number" placeholder="Index Number" value="<?= htmlspecialchars($_POST['index_number'] ?? '') ?>" required>
             <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
 
             <select name="certification" required>

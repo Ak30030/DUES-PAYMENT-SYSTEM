@@ -49,6 +49,7 @@ $dues = $stmt->fetchAll();
         <div class="nav-links">
             <a href="Dashboard.php">Dashboard</a>
             <a href="Logout.php" class="btn btn-danger">Log Out</a>
+            <a href="Payment_history.php">Payment History</a>
         </div>
     </nav>
 

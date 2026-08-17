@@ -28,9 +28,9 @@ $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
     $stmt = $pdo->prepare(
         'SELECT id, username, email, role, certification, created_at FROM users
-         WHERE username LIKE :s OR email LIKE :s ORDER BY created_at DESC'
+         WHERE username LIKE :s1 OR email LIKE :s2 ORDER BY created_at DESC'
     );
-    $stmt->execute(['s' => '%' . $search . '%']);
+    $stmt->execute(['s1' => '%' . $search . '%', 's2' => '%' . $search . '%']);
 } else {
     $stmt = $pdo->query('SELECT id, username, email, role, certification, created_at FROM users ORDER BY created_at DESC');
 }
@@ -72,6 +72,7 @@ $users = $stmt->fetchAll();
                 <button type="submit">Search</button>
             </form>
 
+            <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
@@ -115,6 +116,7 @@ $users = $stmt->fetchAll();
                 <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
 
     </div>
