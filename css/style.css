@@ -612,3 +612,121 @@ tr:hover {
 .toggle-password:hover {
     color: var(--primary);
 }
+/* Auth page animations */
+.auth-box {
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.error, .success {
+    animation: shake 0.3s ease;
+}
+
+button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Register page specific */
+.strength-meter {
+    height: 5px;
+    border-radius: 3px;
+    background: #e0e0e0;
+    margin: -10px 0 12px 0;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.25s ease, background 0.25s ease;
+}
+
+.field-hint {
+    font-size: 0.78rem;
+    margin: -10px 0 12px 4px;
+    color: #888;
+}
+
+.field-hint.match { color: #2e7d32; }
+.field-hint.mismatch { color: #b71c1c; }
+
+/* Pay page */
+.pay-card {
+    max-width: 420px;
+    margin: 60px auto;
+    padding: 32px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.pay-card h2 {
+    color: #001f54;
+    margin-bottom: 8px;
+}
+
+.pay-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #b71c1c;
+    margin: 16px 0;
+}
+
+.pay-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #001f54;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.pay-btn:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+.pay-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.pay-error {
+    margin-top: 16px;
+    padding: 10px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #b71c1c;
+    font-size: 0.9rem;
+    display: none;
+}

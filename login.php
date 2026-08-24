@@ -79,15 +79,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="error"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
 
-        <form method="POST" action="login.php">
-            <input type="text" name="identifier" placeholder="Index Number (students) or Name (admin/executive)" required autofocus>
+        <form method="POST" action="login.php" id="loginForm">
+            <input type="text" name="identifier" id="identifier" placeholder="Index Number (students) or Name (admin/executive)" required autofocus>
+            <p class="field-hint" id="identifierHint"></p>
 
             <div class="password-wrapper">
                 <input type="password" name="password" id="password" placeholder="Password" required>
                 <span class="toggle-password" onclick="togglePassword('password', this)">&#128065;</span>
             </div>
 
-            <button type="submit">Log In</button>
+            <button type="submit" id="loginBtn">Log In</button>
         </form>
 
         <p class="note">Don't have an account? <a href="register.php">Register</a></p>
@@ -105,6 +106,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             el.style.opacity = '1';
         }
     }
+
+    const identifier = document.getElementById('identifier');
+    const identifierHint = document.getElementById('identifierHint');
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('loginBtn');
+
+    identifier.addEventListener('input', () => {
+        const value = identifier.value.trim();
+        const isAllDigits = /^\d+$/.test(value);
+
+        if (value === '') {
+            identifierHint.textContent = '';
+            identifierHint.className = 'field-hint';
+        } else if (isAllDigits && value.length < 12) {
+            identifierHint.textContent = `${value.length}/12 digits`;
+            identifierHint.className = 'field-hint';
+        } else if (isAllDigits && value.length === 12) {
+            identifierHint.textContent = 'Valid index number';
+            identifierHint.className = 'field-hint match';
+        } else {
+            identifierHint.textContent = '';
+            identifierHint.className = 'field-hint';
+        }
+    });
+
+    form.addEventListener('submit', () => {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span>Logging in...';
+    });
     </script>
 </body>
 </html>
