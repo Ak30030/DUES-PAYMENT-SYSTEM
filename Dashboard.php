@@ -59,19 +59,19 @@ try {
             <div class="stats-grid">
                 <div class="stat-card">
                     <p class="stat-label">Total Users</p>
-                    <p class="stat-value"><?= $total_users ?></p>
+                    <p class="stat-value" data-count="<?= $total_users ?>">0</p>
                 </div>
                 <div class="stat-card accent">
                     <p class="stat-label">Active Dues</p>
-                    <p class="stat-value"><?= $active_dues ?></p>
+                    <p class="stat-value" data-count="<?= $active_dues ?>">0</p>
                 </div>
                 <div class="stat-card">
                     <p class="stat-label">Total Dues Created</p>
-                    <p class="stat-value"><?= $total_dues ?></p>
+                    <p class="stat-value" data-count="<?= $total_dues ?>">0</p>
                 </div>
                 <div class="stat-card accent">
                     <p class="stat-label">Total Payments</p>
-                    <p class="stat-value"><?= $total_payments ?></p>
+                    <p class="stat-value" data-count="<?= $total_payments ?>">0</p>
                 </div>
             </div>
 
@@ -128,5 +128,38 @@ try {
         <?php endif; ?>
 
     </div>
+
+    <script>
+    // Animated count-up for stat cards
+    document.querySelectorAll('.stat-value[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count, 10) || 0;
+        const duration = 800;
+        const startTime = performance.now();
+
+        function tick(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.round(eased * target);
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                el.textContent = target;
+            }
+        }
+        requestAnimationFrame(tick);
+    });
+
+    // Subtle fade-in for action cards, staggered
+    document.querySelectorAll('.action-card').forEach((card, i) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, i * 60);
+    });
+    </script>
 </body>
 </html>

@@ -99,7 +99,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->f
             <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
             <?php if ($success): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
-            <form method="POST" action="Manage_dues.php">
+            <form method="POST" action="Manage_dues.php" id="dueForm">
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" value="<?= htmlspecialchars($editing['id'] ?? '') ?>">
 
@@ -125,7 +125,7 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->f
                 <label style="display:block; margin-bottom:0.3rem; color:var(--text-muted); font-size:0.9rem;">Due date</label>
                 <input type="date" name="due_date" value="<?= htmlspecialchars($editing['due_date'] ?? '') ?>">
 
-                <button type="submit"><?= $editing ? 'Save Changes' : 'Create Due' ?></button>
+                <button type="submit" id="dueSubmitBtn"><?= $editing ? 'Save Changes' : 'Create Due' ?></button>
             </form>
             <?php if ($editing): ?>
                 <p class="note"><a href="Manage_dues.php">Cancel editing / create a new due instead</a></p>
@@ -134,14 +134,17 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->f
 
         <div class="card">
             <h2>All Dues</h2>
-            <table>
+
+            <input type="text" id="dueSearch" class="table-search" placeholder="Search dues by title or level...">
+
+            <table id="duesTable">
                 <thead>
                     <tr>
-                        <th>Title</th>
-                        <th>Amount (GHS)</th>
-                        <th>Level</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
+                        <th class="sortable" data-type="text">Title</th>
+                        <th class="sortable" data-type="number">Amount (GHS)</th>
+                        <th class="sortable" data-type="text">Level</th>
+                        <th class="sortable" data-type="text">Due Date</th>
+                        <th class="sortable" data-type="text">Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -163,7 +166,11 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->f
                             <td>
                                 <a href="Manage_dues.php?edit=<?= $due['id'] ?>">Edit</a>
                                 &nbsp;|&nbsp;
-                                <form method="POST" action="Manage_dues.php" style="display:inline;">
+                                <form method="POST" action="Manage_dues.php" style="display:inline;"
+                                      class="toggle-form"
+                                      data-confirm-msg="<?= $due['is_active']
+                                          ? 'Deactivate "' . htmlspecialchars($due['title'], ENT_QUOTES) . '"? Students will no longer be able to pay this due.'
+                                          : 'Activate "' . htmlspecialchars($due['title'], ENT_QUOTES) . '"? Students will be able to pay this due again.' ?>">
                                     <input type="hidden" name="action" value="toggle">
                                     <input type="hidden" name="id" value="<?= $due['id'] ?>">
                                     <button type="submit" style="width:auto; padding:0.1rem 0.5rem; background:none; color:var(--primary); text-decoration:underline; box-shadow:none;">
@@ -176,8 +183,77 @@ $dues = $pdo->query('SELECT * FROM dues ORDER BY level ASC, created_at DESC')->f
                 <?php endif; ?>
                 </tbody>
             </table>
+            <p class="note" id="noResultsMsg" style="display:none;">No dues match your search.</p>
         </div>
 
     </div>
+
+    <script>
+    // Live search/filter
+    const dueSearch = document.getElementById('dueSearch');
+    const duesTable = document.getElementById('duesTable');
+    const noResultsMsg = document.getElementById('noResultsMsg');
+    const rows = () => Array.from(duesTable.querySelectorAll('tbody tr'));
+
+    dueSearch.addEventListener('input', () => {
+        const term = dueSearch.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows().forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matches = text.includes(term);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+
+        noResultsMsg.style.display = (visibleCount === 0 && term !== '') ? '' : 'none';
+    });
+
+    // Sortable columns
+    let sortDirections = {};
+
+    document.querySelectorAll('.sortable').forEach((header, index) => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => {
+            const type = header.dataset.type;
+            const asc = sortDirections[index] = !sortDirections[index];
+
+            const sortedRows = rows().sort((a, b) => {
+                let aVal = a.children[index].textContent.trim();
+                let bVal = b.children[index].textContent.trim();
+
+                if (type === 'number') {
+                    aVal = parseFloat(aVal.replace(/,/g, '')) || 0;
+                    bVal = parseFloat(bVal.replace(/,/g, '')) || 0;
+                    return asc ? aVal - bVal : bVal - aVal;
+                }
+                return asc
+                    ? aVal.localeCompare(bVal)
+                    : bVal.localeCompare(aVal);
+            });
+
+            const tbody = duesTable.querySelector('tbody');
+            sortedRows.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+    // Confirm before activate/deactivate
+    document.querySelectorAll('.toggle-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            const msg = form.dataset.confirmMsg;
+            if (!confirm(msg)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Submit spinner on due form
+    const dueForm = document.getElementById('dueForm');
+    const dueSubmitBtn = document.getElementById('dueSubmitBtn');
+    dueForm.addEventListener('submit', () => {
+        dueSubmitBtn.disabled = true;
+        dueSubmitBtn.innerHTML = '<span class="spinner"></span>Saving...';
+    });
+    </script>
 </body>
 </html>

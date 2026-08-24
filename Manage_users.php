@@ -67,20 +67,22 @@ $users = $stmt->fetchAll();
             <?php if ($success): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
             <form method="GET" action="Manage_users.php" style="max-width:320px;">
-                <input type="text" name="search" placeholder="Search by username or email"
+                <input type="text" name="search" id="serverSearch" placeholder="Search by username or email"
                        value="<?= htmlspecialchars($search) ?>">
                 <button type="submit">Search</button>
             </form>
 
+            <input type="text" id="liveFilter" class="table-search" placeholder="Filter loaded results instantly...">
+
             <div class="table-wrap">
-            <table>
+            <table id="usersTable">
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Certification</th>
-                        <th>Current Role</th>
-                        <th>Joined</th>
+                        <th class="sortable" data-type="text">Username</th>
+                        <th class="sortable" data-type="text">Email</th>
+                        <th class="sortable" data-type="text">Certification</th>
+                        <th class="sortable" data-type="text">Current Role</th>
+                        <th class="sortable" data-type="text">Joined</th>
                         <th>Change Role</th>
                     </tr>
                 </thead>
@@ -100,7 +102,10 @@ $users = $stmt->fetchAll();
                             <td><span class="badge"><?= htmlspecialchars($u['role']) ?></span></td>
                             <td><?= htmlspecialchars($u['created_at']) ?></td>
                             <td>
-                                <form method="POST" action="Manage_users.php" style="display:flex; gap:0.4rem; margin:0;">
+                                <form method="POST" action="Manage_users.php" style="display:flex; gap:0.4rem; margin:0;"
+                                      class="role-form"
+                                      data-username="<?= htmlspecialchars($u['username'], ENT_QUOTES) ?>"
+                                      data-current-role="<?= htmlspecialchars($u['role'], ENT_QUOTES) ?>">
                                     <input type="hidden" name="action" value="change_role">
                                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                                     <select name="role" style="margin:0; width:auto;">
@@ -116,9 +121,71 @@ $users = $stmt->fetchAll();
                 <?php endif; ?>
                 </tbody>
             </table>
+            <p class="note" id="noResultsMsg" style="display:none;">No users match your filter.</p>
             </div>
         </div>
 
     </div>
+
+    <script>
+    // Instant client-side filter over already-loaded rows
+    const liveFilter = document.getElementById('liveFilter');
+    const usersTable = document.getElementById('usersTable');
+    const noResultsMsg = document.getElementById('noResultsMsg');
+    const rows = () => Array.from(usersTable.querySelectorAll('tbody tr'));
+
+    liveFilter.addEventListener('input', () => {
+        const term = liveFilter.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows().forEach(row => {
+            const matches = row.textContent.toLowerCase().includes(term);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+
+        noResultsMsg.style.display = (visibleCount === 0 && term !== '') ? '' : 'none';
+    });
+
+    // Sortable columns
+    let sortDirections = {};
+
+    document.querySelectorAll('.sortable').forEach((header, index) => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => {
+            const type = header.dataset.type;
+            const asc = sortDirections[index] = !sortDirections[index];
+
+            const sortedRows = rows().sort((a, b) => {
+                const aVal = a.children[index].textContent.trim();
+                const bVal = b.children[index].textContent.trim();
+                return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+
+            const tbody = usersTable.querySelector('tbody');
+            sortedRows.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+    // Confirm before changing a role, especially demoting/promoting admin
+    document.querySelectorAll('.role-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            const select = form.querySelector('select[name="role"]');
+            const newRole = select.value;
+            const currentRole = form.dataset.currentRole;
+            const username = form.dataset.username;
+
+            if (newRole === currentRole) {
+                e.preventDefault();
+                return;
+            }
+
+            const msg = `Change ${username}'s role from "${currentRole}" to "${newRole}"?`;
+            if (!confirm(msg)) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
 </body>
 </html>
