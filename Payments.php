@@ -155,5 +155,6 @@ $count_failed  = $pdo->query("SELECT COUNT(*) FROM payments WHERE status = 'fail
         </div>
 
     </div>
+    <script src="javascript/payments.js"></script>
 </body>
 </html>
