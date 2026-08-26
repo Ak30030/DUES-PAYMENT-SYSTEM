@@ -14,8 +14,8 @@ function send_receipt_email($to_email, $to_name, $due_title, $level, $amount, $r
         $mail->isSMTP();
         $mail->Host       = SMTP_HOST;
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'awuntubafredrick@gmail.com';
-        $mail->Password   = 'bzasnsqunwlkvmng';
+        $mail->Username   = SMTP_USERNAME;
+        $mail->Password   = SMTP_PASSWORD;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = SMTP_PORT;
 
